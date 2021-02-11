@@ -9,8 +9,10 @@ const HEADERS = {
 const DOMAIN = "http://cliffy.ucs.mun.ca";
 const ARCHIVE_INDEX = `${DOMAIN}/archives/newsline.html`;
 
-const fetchArchiveIndex = async () : Promise<string> => {
-  const response = await fetch(ARCHIVE_INDEX, { headers: HEADERS });
+const SORT_QUERY_PARAMS = '&O=D&H=0&D=1&T=0';
+
+const fetchText = async (uri : string) : Promise<string> => {
+  const response = await fetch(uri, { headers: HEADERS });
   return await response.text();
 };
 
@@ -27,13 +29,42 @@ const parseArchiveIndex = (text : string) : IMonth[] => {
     const a = li.children[0] as HTMLAnchorElement;
     return {
       name: a.text,
-      url: `${DOMAIN}${a.href}`,
+      url: `${DOMAIN}${a.href}${SORT_QUERY_PARAMS}`,
     }
   });
 };
 
+interface IPost {
+  title: string;
+  url: string;
+  date: Date;
+}
+
+const parsePostInMonth = (li : HTMLLIElement): IPost => {
+  const a = li.childNodes[0] as HTMLAnchorElement;
+  const dateText = li.childNodes[9].textContent as string;
+
+  return {
+    title: a.text,
+    url: `${DOMAIN}${a.href}`,
+    date: new Date(dateText),
+  };
+};
+
+const parseMonth = (text : string): IPost[] => {
+  const dom = new JSDOM(text);
+  const table = dom.window.document.querySelectorAll('table')[1];
+  const ol = table.querySelector('ol') as HTMLOListElement;
+  const lis = Array.from(ol.querySelectorAll('li'));
+  return lis.map((li) => {
+    return parsePostInMonth(li);
+  });
+};
+
 (async () => {
-  const archiveIndexText = await fetchArchiveIndex();
+  const archiveIndexText = await fetchText(ARCHIVE_INDEX);
   const archiveIndexData = parseArchiveIndex(archiveIndexText);
-  console.log(archiveIndexData);
+  const latest = archiveIndexData[0];
+  const latestText = await fetchText(latest.url);
+  console.log(parseMonth(latestText));
 })();
