@@ -1,3 +1,4 @@
+import { JSDOM } from "jsdom";
 import fetch from "node-fetch";
 
 const HEADERS = {
@@ -13,7 +14,26 @@ const fetchArchiveIndex = async () : Promise<string> => {
   return await response.text();
 };
 
+interface IMonth {
+  name: string;
+  url: string;
+}
+
+const parseArchiveIndex = (text : string) : IMonth[] => {
+  const dom = new JSDOM(text);
+  const lis = Array.from(dom.window.document.querySelectorAll("li"));
+  lis.shift();
+  return lis.map((li) => {
+    const a = li.children[0] as HTMLAnchorElement;
+    return {
+      name: a.text,
+      url: `${DOMAIN}${a.href}`,
+    }
+  });
+};
+
 (async () => {
-  const archiveIndex = await fetchArchiveIndex();
-  console.log(archiveIndex);
+  const archiveIndexText = await fetchArchiveIndex();
+  const archiveIndexData = parseArchiveIndex(archiveIndexText);
+  console.log(archiveIndexData);
 })();
