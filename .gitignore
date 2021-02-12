@@ -1,4 +1,5 @@
 dist/
+*.db
 
 node_modules/
 tmp/
