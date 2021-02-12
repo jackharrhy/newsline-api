@@ -12,7 +12,7 @@ export interface IPost {
   title: string;
   url: string;
   date: Date;
-  details: IPostDetails,
+  details: IPostDetails | null,
 }
 
 export interface IMonth {
