@@ -1,11 +1,13 @@
 import fetch from "node-fetch";
 
 import { HEADERS } from "./consts";
+import logFactory from "./log";
+const log = logFactory("utils");
 
 export const fetchText = async (uri: string): Promise<string> => {
-  console.log(`fetching ${uri}...`);
+  log(`fetching ${uri}...`);
   const response = await fetch(uri, { headers: HEADERS });
   const text = await response.text();
-  console.log(`fetched ${uri}`);
+  log(`fetched ${uri}`);
   return text;
 };

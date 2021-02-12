@@ -3,18 +3,26 @@ import { ARCHIVE_INDEX } from "./consts";
 import { parseArchiveIndex } from "./parsers/archiveIndex";
 import { parseMonth } from "./parsers/month";
 
-import dbFactory from "./db";
+import dbFactory, { DB } from "./db";
+import { insertIfNotExistsMonth } from "./db/month";
+
+const populateAll = async (db: DB) => {
+  const archiveIndexText = await fetchText(ARCHIVE_INDEX);
+  const months = parseArchiveIndex(archiveIndexText);
+
+  for (const month of months) {
+    await insertIfNotExistsMonth(db, month);
+  }
+};
 
 const main = async () => {
   const { isFresh, db } = await dbFactory({ shouldNuke: true });
 
   if (isFresh) {
-    console.log("populateAll");
+    await populateAll(db);
   }
 
   /*
-  const archiveIndexText = await fetchText(ARCHIVE_INDEX);
-  const archiveIndexData = parseArchiveIndex(archiveIndexText);
   const latestMonth = archiveIndexData[0];
   const latestMonthText = await fetchText(latestMonth.url);
   const posts = await parseMonth(latestMonthText);
