@@ -5,16 +5,16 @@ const initSql = `
 CREATE TABLE IF NOT EXISTS month (
     name TEXT PRIMARY KEY,
     date TEXT NOT NULL,
-	url TEXT NOT NULL,
-	last_updated TEXT NOT NULL
+    url TEXT NOT NULL,
+    last_updated TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS post (
-	title TEXT NOT NULL,
+    title TEXT NOT NULL,
     url TEXT NOT NULL,
     date TEXT NOT NULL,
     month TEXT NOT NULL REFERENCES month,
-	created TEXT NOT NULL,
+    created TEXT NOT NULL,
     PRIMARY KEY (title, url)
 );
 
