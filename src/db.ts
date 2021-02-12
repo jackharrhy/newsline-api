@@ -1,5 +1,9 @@
-import sqlite3 from "sqlite3"
-import { open } from "sqlite"
+import fs from "fs";
+import sqlite3 from "sqlite3";
+import { open } from "sqlite";
+
+import logFactory from "./log";
+const log = logFactory("db");
 
 const initSql = `
 CREATE TABLE IF NOT EXISTS month (
@@ -32,11 +36,44 @@ CREATE TABLE IF NOT EXISTS post_detail (
 );
 `;
 
-export default async () => {
-    const db = await open({
-        filename: './newsline-api.db',
-        driver: sqlite3.Database
-    });
-    await db.exec(initSql);
-    return db;
+interface ISqliteMasterNameQuery {
+  name: string;
+}
+
+export default async ({
+  dbPath = "./newsline-api.db",
+  shouldNuke = false,
+} = {}) => {
+  log(`dbPath: ${dbPath}, shouldNuke: ${shouldNuke}`);
+
+  if (shouldNuke) {
+    log("nuking...");
+    try {
+      fs.unlinkSync(dbPath);
+    } catch (err) {
+      console.error(err);
+      log("error nuking, likely no file existed");
+    }
+    log("nuked");
+  }
+
+  const db = await open({
+    filename: "./newsline-api.db",
+    driver: sqlite3.Database,
+  });
+
+  const monthExists = await db.get<ISqliteMasterNameQuery | undefined>(
+    `SELECT name FROM sqlite_master WHERE type='table' AND name = ?`,
+    "month"
+  );
+
+  let isFresh = false;
+  if (monthExists === undefined) {
+    isFresh = true;
+  }
+  log(`isFresh: ${isFresh}`);
+
+  await db.exec(initSql);
+
+  return { isFresh, db };
 };

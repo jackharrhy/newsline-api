@@ -6,4 +6,4 @@ export const HEADERS = {
 export const DOMAIN = "http://cliffy.ucs.mun.ca";
 export const ARCHIVE_INDEX = `${DOMAIN}/archives/newsline.html`;
 
-export const SORT_QUERY_PARAMS = '&O=D&H=0&D=1&T=0';
+export const SORT_QUERY_PARAMS = "&O=D&H=0&D=1&T=0";

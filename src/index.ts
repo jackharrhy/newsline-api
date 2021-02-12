@@ -6,7 +6,11 @@ import { parseMonth } from "./parsers/month";
 import dbFactory from "./db";
 
 const main = async () => {
-  const db = await dbFactory();
+  const { isFresh, db } = await dbFactory({ shouldNuke: true });
+
+  if (isFresh) {
+    console.log("populateAll");
+  }
 
   /*
   const archiveIndexText = await fetchText(ARCHIVE_INDEX);
@@ -21,6 +25,6 @@ const main = async () => {
 
 try {
   main();
-} catch(err) {
+} catch (err) {
   console.error(err);
 }

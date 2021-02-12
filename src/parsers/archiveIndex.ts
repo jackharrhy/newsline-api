@@ -3,7 +3,7 @@ import { JSDOM } from "jsdom";
 import { DOMAIN, SORT_QUERY_PARAMS } from "../consts";
 import { IMonth } from "../interfaces";
 
-export const parseArchiveIndex = (text : string) : IMonth[] => {
+export const parseArchiveIndex = (text: string): IMonth[] => {
   const dom = new JSDOM(text);
   const lis = Array.from(dom.window.document.querySelectorAll("li"));
   lis.shift();
@@ -13,6 +13,6 @@ export const parseArchiveIndex = (text : string) : IMonth[] => {
       name: a.text,
       url: `${DOMAIN}${a.href}${SORT_QUERY_PARAMS}`,
       posts: [],
-    }
+    };
   });
 };
