@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 import fetch from "node-fetch";
+import { IMonth, IPost, IPostDetails } from "./interfaces";
 
 const HEADERS = {
   "User-Agent": "github.com/jackharrhy/newsline-api",
@@ -12,14 +13,12 @@ const ARCHIVE_INDEX = `${DOMAIN}/archives/newsline.html`;
 const SORT_QUERY_PARAMS = '&O=D&H=0&D=1&T=0';
 
 const fetchText = async (uri : string) : Promise<string> => {
+  console.log(`fetching ${uri}...`);
   const response = await fetch(uri, { headers: HEADERS });
-  return await response.text();
+  const text = await response.text();
+  console.log(`fetched ${uri}`);
+  return text;
 };
-
-interface IMonth {
-  name: string;
-  url: string;
-}
 
 const parseArchiveIndex = (text : string) : IMonth[] => {
   const dom = new JSDOM(text);
@@ -30,49 +29,46 @@ const parseArchiveIndex = (text : string) : IMonth[] => {
     return {
       name: a.text,
       url: `${DOMAIN}${a.href}${SORT_QUERY_PARAMS}`,
+      posts: [],
     }
   });
 };
 
-interface IPostDetails {
-  sender: string,
-  from: string,
-  subject: string,
-  contentType: string,
-  text: string,
-  htmlUrl: string,
-  html: string | null,
-}
-interface IPost {
-  title: string;
-  url: string;
-  date: Date;
-  details: IPostDetails | null;
-}
-
-const parsePostInMonth = (li : HTMLLIElement): IPost => {
+const parsePostInMonth = async (li : HTMLLIElement): Promise<IPost> => {
   const a = li.childNodes[0] as HTMLAnchorElement;
   const dateText = li.childNodes[9].textContent as string;
+
+  const url = `${DOMAIN}${a.href}`;
+  const postText = await fetchText(url);
+  const details = await parsePost(postText);
 
   return {
     title: a.text,
     url: `${DOMAIN}${a.href}`,
     date: new Date(dateText),
-    details: null,
+    details,
   };
 };
 
-const parseMonth = (text : string): IPost[] => {
+const parseMonth = async (text : string): Promise<IPost[]> => {
   const dom = new JSDOM(text);
   const table = dom.window.document.querySelectorAll('table')[1];
+
   const ol = table.querySelector('ol') as HTMLOListElement;
   const lis = Array.from(ol.querySelectorAll('li'));
-  return lis.map((li) => {
-    return parsePostInMonth(li);
-  });
+
+  const posts = [];
+  for (const li of lis) {
+    try {
+      posts.push(await parsePostInMonth(li));
+    } catch(err) {
+      console.error(err);
+    }
+  }
+  return posts;
 };
 
-const parsePost = (text : string): IPostDetails => {
+const parsePost = async (text : string): Promise<IPostDetails> => {
   const dom = new JSDOM(text);
   const post = dom.window.document.getElementById('nonprop') as HTMLPreElement;
 
@@ -82,7 +78,14 @@ const parsePost = (text : string): IPostDetails => {
   const contentType = post.querySelector('#MSGHDR-CONTENT-TYPE-PRE')?.textContent as string;
 
   const postText = post.children[3].textContent as string;
-  const htmlUrl = post.querySelectorAll('a')[1].href;
+  const htmlUrl = `${DOMAIN}${(post.querySelector('a[target=blank]') as HTMLAnchorElement).href}`;
+
+  let html = null;
+  try {
+    html = await fetchText(htmlUrl);
+  } catch(err) {
+    console.error(err);
+  }
 
   return {
     sender,
@@ -91,22 +94,24 @@ const parsePost = (text : string): IPostDetails => {
     contentType,
     text: postText,
     htmlUrl,
-    html: null,
+    html,
   };
 };
 
-// things to do
-// - populate posts with posts details
-// - populate a post with its html
-
-(async () => {
+const main = async () => {
   const archiveIndexText = await fetchText(ARCHIVE_INDEX);
   const archiveIndexData = parseArchiveIndex(archiveIndexText);
   const latestMonth = archiveIndexData[0];
   const latestMonthText = await fetchText(latestMonth.url);
-  const posts = parseMonth(latestMonthText);
-  const latestPost = posts[0];
-  const latestPostText = await fetchText(latestPost.url);
-  const postDetails = parsePost(latestPostText);
-  console.log(postDetails);
-})();
+  try {
+    const posts = await parseMonth(latestMonthText);
+  } catch(err) {
+    console.error(err);
+  }
+};
+
+try {
+  main();
+} catch(err) {
+  console.error(err);
+}
