@@ -1,10 +1,10 @@
 export interface IPostDetails {
   sender: string;
   from: string;
-  subject: string;
+  subject: string | null;
   contentType: string;
   text: string;
-  htmlUrl: string;
+  htmlUrl: string | null;
   html: string | null;
 }
 

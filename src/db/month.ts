@@ -8,7 +8,6 @@ interface ISqliteMonthExistsQuery {
 }
 
 export const insertIfNotExistsMonth = async (db: DB, month: IMonth) => {
-  db.exec("BEGIN TRANSACTION");
   const monthExists = await db.get<ISqliteMonthExistsQuery | undefined>(
     `SELECT name FROM month WHERE name = ?`,
     month.name
@@ -25,5 +24,4 @@ export const insertIfNotExistsMonth = async (db: DB, month: IMonth) => {
   } else {
     log(`month: ${month.name} already exists`);
   }
-  db.exec("COMMIT");
 };

@@ -26,10 +26,10 @@ CREATE TABLE IF NOT EXISTS post_detail (
   url TEXT NOT NULL REFERENCES post(url),
   sender TEXT NOT NULL,
   "from" TEXT NOT NULL,
-  subject TEXT NOT NULL,
+  subject TEXT,
   contenttype TEXT NOT NULL,
   text TEXT NOT NULL,
-  htmlurl TEXT NOT NULL,
+  htmlurl TEXT,
   html TEXT,
   PRIMARY KEY (title, url)
 );

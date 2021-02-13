@@ -1,5 +1,7 @@
 dist/
 *.db
+fetch-cache/*
 
 node_modules/
 tmp/
+

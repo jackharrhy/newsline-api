@@ -12,21 +12,25 @@ export const parsePost = async (text: string): Promise<IPostDetails> => {
     ?.textContent as string;
   const from = (post.querySelector("#MSGHDR-FROM-PRE") as HTMLAnchorElement)
     .textContent as string;
-  const subject = post.querySelector("#MSGHDR-SUBJECT-PRE")
-    ?.textContent as string;
+  const subject =
+    post.querySelector("#MSGHDR-SUBJECT-PRE")?.textContent ?? null;
   const contentType = post.querySelector("#MSGHDR-CONTENT-TYPE-PRE")
     ?.textContent as string;
 
-  const postText = post.children[3].textContent as string;
-  const htmlUrl = `${DOMAIN}${
-    (post.querySelector("a[target=blank]") as HTMLAnchorElement).href
-  }`;
+  const postText = post.querySelector("p")?.textContent as string;
 
+  const htmlAnchorEl = post.querySelector("a[target=blank]");
+
+  let htmlUrl = null;
   let html = null;
-  try {
-    html = await fetchText(htmlUrl);
-  } catch (err) {
-    console.error(err);
+  if (htmlAnchorEl !== null) {
+    htmlUrl = `${DOMAIN}${(htmlAnchorEl as HTMLAnchorElement).href}`;
+
+    try {
+      html = await fetchText(htmlUrl);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   return {
