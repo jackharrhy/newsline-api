@@ -3,6 +3,7 @@ import { ARCHIVE_INDEX } from "./consts";
 import { parseArchiveIndex } from "./parsers/archiveIndex";
 import { parseMonth } from "./parsers/month";
 import { parsePost } from "./parsers/post";
+import initExpress from "./express";
 import dbFactory, { DB } from "./db";
 import { insertIfNotExistsMonth } from "./db/month";
 import { insertIfNotExistsPost } from "./db/post";
@@ -43,11 +44,19 @@ const populateAll = async (db: DB) => {
 
 const main = async () => {
   try {
-    const { isFresh, db } = await dbFactory({ shouldNuke: true });
+    const { isFresh, db } = await dbFactory();
+    const { listen } = await initExpress(db);
 
     if (isFresh) {
+      log("db is fresh, cooking up some posts...");
       await populateAll(db);
+    } else {
+      log("db is not fresh");
     }
+
+    // TODO every so often keep the database up to date with new posts
+
+    listen();
   } catch (err) {
     console.error(err);
   }

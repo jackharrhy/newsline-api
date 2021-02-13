@@ -20,3 +20,12 @@ export interface IMonth {
   url: string;
   posts: IPost[];
 }
+
+export interface IPostOverview {
+  date: string;
+  title: string;
+  sender: string;
+  from: string;
+  contenttype: string;
+  htmlurl: string;
+}

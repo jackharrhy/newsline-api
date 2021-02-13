@@ -33,6 +33,20 @@ CREATE TABLE IF NOT EXISTS post_detail (
   html TEXT,
   PRIMARY KEY (title, url)
 );
+
+CREATE VIEW IF NOT EXISTS
+  post_overview
+AS
+  SELECT
+    post.date,
+    post.title,
+    post_detail.sender,
+    post_detail."from",
+    post_detail.contenttype,
+    post_detail.htmlurl
+  FROM post
+    JOIN post_detail ON post_detail.title = post.title AND post_detail.url = post.url
+  ORDER BY date(post.date) DESC
 `;
 
 export type DB = Database<sqlite3.Database, sqlite3.Statement>;
