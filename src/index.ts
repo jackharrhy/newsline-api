@@ -29,9 +29,9 @@ const populateAll = async (db: DB) => {
         await insertIfNotExistsPost(db, month, post);
 
         const postText = await fetchText(post.url);
-        const details = await parsePost(postText);
+        const details = await parsePost(post, postText);
 
-        await insertIfNotExistsPostDetails(db, post, details);
+        await insertIfNotExistsPostDetails(db, details);
       }
     }
     db.exec("COMMIT");
@@ -44,7 +44,7 @@ const populateAll = async (db: DB) => {
 
 const main = async () => {
   try {
-    const { isFresh, db } = await dbFactory();
+    const { isFresh, db } = await dbFactory({ shouldNuke: true });
     const { listen } = await initExpress(db);
 
     if (isFresh) {

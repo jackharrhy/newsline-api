@@ -6,6 +6,10 @@ import { HEADERS } from "./consts";
 import logFactory from "./log";
 const log = logFactory("utils");
 
+export function generatePostId(url: string, title: string): string {
+  return md5(`${encodeURI(url)}/${encodeURI(title)}`);
+}
+
 async function exists(path: string): Promise<boolean> {
   try {
     await fs.stat(path);

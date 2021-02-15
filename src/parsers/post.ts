@@ -1,10 +1,13 @@
 import { JSDOM } from "jsdom";
 
 import { DOMAIN } from "../consts";
-import { fetchText } from "../utils";
-import { IPostDetails } from "../interfaces";
+import { fetchText, generatePostId } from "../utils";
+import { IPost, IPostDetails } from "../interfaces";
 
-export const parsePost = async (text: string): Promise<IPostDetails> => {
+export const parsePost = async (
+  parent: IPost,
+  text: string
+): Promise<IPostDetails> => {
   const dom = new JSDOM(text);
   const post = dom.window.document.getElementById("nonprop") as HTMLPreElement;
 
@@ -34,6 +37,7 @@ export const parsePost = async (text: string): Promise<IPostDetails> => {
   }
 
   return {
+    id: generatePostId(parent.url, parent.title),
     sender,
     from,
     subject,

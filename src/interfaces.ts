@@ -1,4 +1,5 @@
 export interface IPostDetails {
+  id: string;
   sender: string;
   from: string;
   subject: string | null;
@@ -8,9 +9,13 @@ export interface IPostDetails {
   html: string | null;
 }
 
+export type PostTitle = string;
+export type PostUrl = string;
+
 export interface IPost {
-  title: string;
-  url: string;
+  id: string;
+  title: PostTitle;
+  url: PostUrl;
   date: Date;
   details: IPostDetails | null;
 }
@@ -21,11 +26,24 @@ export interface IMonth {
   posts: IPost[];
 }
 
-export interface IPostOverview {
+export interface ISqlPostOverview {
+  id: string;
   date: string;
   title: string;
+  url: string;
   sender: string;
   from: string;
   contenttype: string;
   htmlurl: string;
+}
+
+export interface ISqlPostDetails {
+  id: string;
+  sender: string;
+  from: string;
+  subject: string;
+  contenttype: string;
+  text: string;
+  htmlurl: string;
+  html: string;
 }

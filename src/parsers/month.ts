@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 
+import { generatePostId } from "../utils";
 import { DOMAIN } from "../consts";
 import { IPost } from "../interfaces";
 
@@ -23,11 +24,13 @@ export const parseMonth = async (text: string): Promise<IPost[]> => {
 
 export const parsePostInMonth = async (li: HTMLLIElement): Promise<IPost> => {
   const a = li.childNodes[0] as HTMLAnchorElement;
+  const title = a.text;
   const dateText = li.childNodes[9].textContent as string;
   const url = `${DOMAIN}${a.href}`;
 
   return {
-    title: a.text,
+    id: generatePostId(url, title),
+    title,
     url,
     date: new Date(dateText),
     details: null,

@@ -4,7 +4,7 @@ import logFactory from "../log";
 const log = logFactory("db/post");
 
 interface ISqlitePostExistsQuery {
-  title: string;
+  id: string;
 }
 
 export const insertIfNotExistsPost = async (
@@ -13,14 +13,14 @@ export const insertIfNotExistsPost = async (
   post: IPost
 ) => {
   const postExists = await db.get<ISqlitePostExistsQuery | undefined>(
-    `SELECT title FROM post WHERE title = ? AND url = ?`,
-    post.title,
-    post.url
+    `SELECT id FROM post WHERE id = ?`,
+    post.id
   );
 
   if (postExists === undefined) {
     await db.run(
-      "INSERT INTO post (title, url, date, month, created) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO post (id, title, url, date, month, created) VALUES (?, ?, ?, ?, ?, ?)",
+      post.id,
       post.title,
       post.url,
       post.date.toISOString(),
