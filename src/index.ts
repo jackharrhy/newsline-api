@@ -10,51 +10,67 @@ import { insertIfNotExistsPost } from "./db/post";
 import { insertIfNotExistsPostDetails } from "./db/postDetail";
 import logFactory from "./log";
 
+const POPULATE_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
 const log = logFactory("index");
 
-const populateAll = async (db: DB) => {
-  log("populating all...");
-  const archiveIndexText = await fetchText(ARCHIVE_INDEX);
+const populate = async (db: DB): Promise<number> => {
+  log("populating...");
+  let newPosts = 0;
+  const archiveIndexText = await fetchText(ARCHIVE_INDEX, false);
   const months = parseArchiveIndex(archiveIndexText);
 
   try {
     db.exec("BEGIN TRANSACTION");
     for (const month of months) {
+      log(`populating ${month.name}...`);
       await insertIfNotExistsMonth(db, month);
 
-      const monthText = await fetchText(month.url);
+      const monthText = await fetchText(month.url, false);
       const posts = await parseMonth(monthText);
 
+      let sawAnyNewPosts = false;
+
       for (const post of posts) {
-        await insertIfNotExistsPost(db, month, post);
+        const postCreated = await insertIfNotExistsPost(db, month, post);
 
-        const postText = await fetchText(post.url);
-        const details = await parsePost(post, postText);
+        if (postCreated) {
+          newPosts += 1;
+          sawAnyNewPosts = true;
 
-        await insertIfNotExistsPostDetails(db, details);
+          const postText = await fetchText(post.url);
+          const details = await parsePost(post, postText);
+
+          await insertIfNotExistsPostDetails(db, details);
+        }
       }
+
+      if (!sawAnyNewPosts) {
+        log("saw no new posts in month, stopping population...");
+        break;
+      }
+      log(`populated ${month.name}`);
     }
     db.exec("COMMIT");
   } catch (err) {
     console.error(err);
     db.exec("ROLLBACK");
   }
-  log("populated all!");
+  log(`populated, ${newPosts} new posts!`);
+  return newPosts;
 };
 
 const main = async () => {
   try {
-    const { isFresh, db } = await dbFactory({ shouldNuke: true });
+    const { db } = await dbFactory();
     const { listen } = await initExpress(db);
 
-    if (isFresh) {
-      log("db is fresh, cooking up some posts...");
-      await populateAll(db);
-    } else {
-      log("db is not fresh");
-    }
+    await populate(db);
 
-    // TODO every so often keep the database up to date with new posts
+    setInterval(async () => {
+      log("updating...");
+      await populate(db);
+    }, POPULATE_INTERVAL);
 
     listen();
   } catch (err) {
