@@ -21,7 +21,9 @@ export const insertIfNotExistsMonth = async (db: DB, month: IMonth) => {
       new Date().toISOString()
     );
     log(`month: ${month.name} now exists!`);
+    return true;
   } else {
     log(`month: ${month.name} already exists`);
+    return false;
   }
 };

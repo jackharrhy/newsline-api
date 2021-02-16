@@ -28,7 +28,9 @@ export const insertIfNotExistsPost = async (
       new Date().toISOString()
     );
     log(`post: ${post.title} now exists!`);
+    return true;
   } else {
     log(`post: ${post.title} already exists`);
+    return false;
   }
 };

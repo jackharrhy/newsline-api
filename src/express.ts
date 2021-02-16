@@ -30,7 +30,7 @@ export default async (db: DB, { port = 4000 } = {}) => {
     );
   });
 
-  app.get("/posts/detail/:id", async (req, res) => {
+  app.get("/posts/:id/detail", async (req, res) => {
     const id = req.params.id;
 
     const data = await db.get<ISqlPostDetails | undefined>(

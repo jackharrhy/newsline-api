@@ -30,7 +30,9 @@ export const insertIfNotExistsPostDetails = async (
       postDetails.html
     );
     log(`postDetails: ${postDetails.id} now exists!`);
+    return true;
   } else {
     log(`postDetails: ${postDetails.id} already exists`);
+    return false;
   }
 };

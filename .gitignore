@@ -1,5 +1,6 @@
 dist/
 *.db
+*.db-journal
 fetch-cache/*
 
 node_modules/

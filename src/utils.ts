@@ -7,7 +7,7 @@ import logFactory from "./log";
 const log = logFactory("utils");
 
 export function generatePostId(url: string, title: string): string {
-  return md5(`${encodeURI(url)}/${encodeURI(title)}`);
+  return md5(`${url}/${title}`);
 }
 
 async function exists(path: string): Promise<boolean> {
