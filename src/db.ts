@@ -57,7 +57,7 @@ interface ISqliteMasterNameQuery {
 }
 
 export default async ({
-  dbPath = "./newsline-api.db",
+  dbPath = "./data/newsline-api.db",
   shouldNuke = false,
 } = {}) => {
   log(`dbPath: ${dbPath}, shouldNuke: ${shouldNuke}`);
@@ -74,7 +74,7 @@ export default async ({
   }
 
   const db = await open({
-    filename: "./newsline-api.db",
+    filename: dbPath,
     driver: sqlite3.Database,
   });
 

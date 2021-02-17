@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  newsline-api:
+    image: jackharrhy/newsline-api
+    build: ./.
+    ports:
+      - "127.0.0.1:4000:4000"
+    volumes:
+      - ./fetch-cache:/app/fetch-cache
+      - ./data:/app/data
