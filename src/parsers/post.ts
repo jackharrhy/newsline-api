@@ -4,6 +4,8 @@ import { DOMAIN } from "../consts";
 import { fetchText, generatePostId } from "../utils";
 import { IPost, IPostDetails } from "../interfaces";
 
+const CRAP = " <[log in to unmask]>".length;
+
 export const parsePost = async (
   parent: IPost,
   text: string
@@ -13,8 +15,8 @@ export const parsePost = async (
 
   const sender = post.querySelector("#MSGHDR-SENDER-PRE")
     ?.textContent as string;
-  const from = (post.querySelector("#MSGHDR-FROM-PRE") as HTMLAnchorElement)
-    .textContent as string;
+  const from = post.querySelector("#MSGHDR-FROM-PRE")?.textContent as string;
+
   const subject =
     post.querySelector("#MSGHDR-SUBJECT-PRE")?.textContent ?? null;
   const contentType = post.querySelector("#MSGHDR-CONTENT-TYPE-PRE")
@@ -38,8 +40,8 @@ export const parsePost = async (
 
   return {
     id: generatePostId(parent.url, parent.title),
-    sender,
-    from,
+    sender: sender.slice(0, sender.length - CRAP),
+    from: from.slice(0, from.length - CRAP),
     subject,
     contentType,
     text: postText,
