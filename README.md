@@ -2,6 +2,8 @@
 
 an API, built around scrapping http://cliffy.ucs.mun.ca/archives/newsline.html
 
+An instance is currently hosted at `https://jackharrhy.dev/newsline/`
+
 ----
 
 MUNs Newsline Email List is a pretty useful resource (at times, most of the time it's deaths and asbestos notices), but it seems people are pretty inconsistently added to said list.
