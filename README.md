@@ -2,7 +2,7 @@
 
 an API, built around scrapping http://cliffy.ucs.mun.ca/archives/newsline.html
 
-An instance is currently hosted at `https://jackharrhy.dev/newsline/`
+An instance is currently hosted at https://jackharrhy.dev/newsline/
 
 ----
 
