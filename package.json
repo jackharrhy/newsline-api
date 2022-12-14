@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "ajv": "^7.0.4",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "jsdom": "^16.4.0",
     "md5": "^2.3.0",
     "node-fetch": "^2.6.1",
